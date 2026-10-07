@@ -1,0 +1,22 @@
+# dsh-sidebar-hover bundle patch layer.
+#
+# Installed through the official CLI —
+#
+#   dsh plugin --profile <name> add dsh-sidebar-hover
+#
+# — the command reconciles `dsh.profile.bundles` against installed packages
+# and, seeing this declaration, appends the bundle to the profile stack. The
+# profile boot then merges THIS patch exactly like a manual cordis.patch.yml
+# mount line. No profile file edits needed — one command installs and mounts.
+#
+# The entry id is load-bearing beyond mounting: it doubles as the settings
+# namespace (`SettingsForms` names a namespace after `entry.options.id`), so
+# the client half reads/writes the volatile fields below through
+# `ctx.remote.settings` under the same id. Do not rename it without renaming
+# the namespace in src/client/prefs-store.ts.
+- insert:
+    - id: dsh-sidebar-hover
+      name: 'dsh-sidebar-hover'
+      config:
+        enabled: true
+        hoverDelayMs: 180
