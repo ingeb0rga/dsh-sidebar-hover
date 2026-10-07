@@ -121,6 +121,9 @@ catalog, which feeds the dsh-market Plugin Market (see its `contributing.md`).
    requires the repo to be at least one day old.
 2. `npm publish` from `main` (`prepublishOnly` typechecks, tests and builds
    `lib/`). The market links the package to the repo through `repository`.
+   Since 0.1.22 later versions are published by CI: push a `v<version>` tag
+   matching `package.json` and `.github/workflows/publish.yml` publishes via
+   npm trusted publishing (GitHub OIDC, provenance attached, no token).
 3. PR to awesome-dsh-plugin adding one file,
    `data/plugins/ingeb0rga__dsh-sidebar-hover.yml`:
 
