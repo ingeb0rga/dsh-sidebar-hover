@@ -1,6 +1,6 @@
 {
   "name": "dsh-sidebar-hover",
-  "version": "0.1.22",
+  "version": "0.1.23",
   "description": "Claude Code-style sidebar for DeepSeek Harness: hovering the collapsed sidebar toggle peeks the sidebar over the content, selecting a session collapses it, clicking the toggle pins it; plus back/forward session history arrows (Cmd+[ / Cmd+]). Own Settings page \"Sidebar hover\".",
   "type": "module",
   "license": "MIT",

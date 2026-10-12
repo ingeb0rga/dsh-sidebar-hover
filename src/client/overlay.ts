@@ -28,6 +28,8 @@
  * at the seat's offset — the icon stays put in every state (Claude Code).
  */
 
+import { mountStyle, unmountStyle } from './style.ts'
+
 const PEEK_ATTR = 'data-dsh-hover-peek'
 const SETTLING_ATTR = 'data-dsh-hover-settling'
 const COL_ATTR = 'data-dsh-hover-col'
@@ -103,11 +105,7 @@ export function createOverlayPeek(): OverlayPeek {
   let enabledFrame: HTMLElement | null = null
 
   function ensureStyle(): void {
-    if (document.getElementById(STYLE_ID)) return
-    const style = document.createElement('style')
-    style.id = STYLE_ID
-    style.textContent = CSS
-    document.head.appendChild(style)
+    mountStyle(STYLE_ID, CSS)
   }
 
   function tag(nextCol: HTMLElement | null, nextRoot: HTMLElement | null): void {
@@ -202,7 +200,7 @@ export function createOverlayPeek(): OverlayPeek {
     dispose() {
       api.setEnabled(null, false)
       api.end()
-      document.getElementById(STYLE_ID)?.remove()
+      unmountStyle(STYLE_ID)
       frame = null
     },
   }

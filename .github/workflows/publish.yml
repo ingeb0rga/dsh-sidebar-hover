@@ -29,6 +29,11 @@ jobs:
           version="$(node -p 'require("./package.json").version')"
           test "v${version}" = "${GITHUB_REF_NAME}" || {
             echo "tag ${GITHUB_REF_NAME} != package.json v${version}"; exit 1; }
+      - name: Trusted publishing preconditions
+        run: |
+          echo "node $(node --version), npm $(npm --version)"
+          test -n "${ACTIONS_ID_TOKEN_REQUEST_URL}" || {
+            echo "no OIDC token endpoint: id-token: write permission missing"; exit 1; }
       - run: npm ci
       # prepublishOnly runs typecheck + tests + build before the upload.
-      - run: npm publish
+      - run: npm publish --loglevel verbose

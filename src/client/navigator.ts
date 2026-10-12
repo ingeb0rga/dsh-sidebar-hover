@@ -18,6 +18,7 @@ import type { Context } from '@deepseek-ai/cordis'
 import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
 import { entryOf, SessionHistory, type HistoryState } from './history.ts'
 import type { PrefsController } from './prefs-store.ts'
+import { mountStyle, unmountStyle } from './style.ts'
 
 export const ARROWS_ATTR = 'data-dsh-history-arrows'
 /** Set on the AppFrame by the mounted arrows component. */
@@ -58,6 +59,11 @@ ${darwin}[data-fullscreen] ${frame}[data-dsh-hover-peek] { --dsh-frame-leading-c
 ${darwin}:not([data-fullscreen]) ${frame} [class*="_topStrip"] { justify-content: flex-start; padding-left: 88px; }
 `
 })()
+
+/** Mount (or heal) the arrows stylesheet; the arrows call it on every show. */
+export function ensureArrowsStyle(): void {
+  mountStyle(STYLE_ID, ARROWS_CSS)
+}
 
 interface SelectionStore {
   getSnapshot(): { sessionId?: unknown; subagentAddress?: unknown }
@@ -111,11 +117,7 @@ export function installHistoryNavigator(ctx: Context, prefs: PrefsController): H
     }
   }
 
-  const style = document.createElement('style')
-  style.id = STYLE_ID
-  style.textContent = ARROWS_CSS
-  document.getElementById(STYLE_ID)?.remove()
-  document.head.appendChild(style)
+  ensureArrowsStyle()
 
   ctx.inject(['uiWorkspace'], (wctx: Context) => {
     const face = wctx.get<WorkspaceFace>('uiWorkspace')
@@ -177,7 +179,7 @@ export function installHistoryNavigator(ctx: Context, prefs: PrefsController): H
     forward: () => void go(1),
     dispose() {
       workspace = null
-      style.remove()
+      unmountStyle(STYLE_ID)
     },
   }
 }

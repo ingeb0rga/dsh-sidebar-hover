@@ -27,7 +27,7 @@ Tested on the DeepSeek Harness **desktop app for macOS**, `0.2.0-rc.2`.
 | Settings → Sidebar hover | yes | same client code — **not tested live** |
 
 Windows / Linux desktop builds are untested.
-Current version **0.1.22**.
+Current version **0.1.23**.
 
 Docs:
 

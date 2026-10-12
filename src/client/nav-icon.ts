@@ -9,6 +9,8 @@
  * currentColor mask, so it follows the native hover/active colors at the
  * shell's 16 px icon size.
  */
+import { mountStyle, unmountStyle } from './style.ts'
+
 const MARKER = 'data-dsh-sidebar-hover-settings-nav'
 const STYLE_ID = 'dsh-sidebar-hover-nav-icon'
 
@@ -30,17 +32,13 @@ const CSS = `
 
 /** Keep the marker on our settings nav button; returns the disposer. */
 export function installSettingsNavIcon(label: () => string): () => void {
-  const style = document.createElement('style')
-  style.id = STYLE_ID
-  style.textContent = CSS
-  document.getElementById(STYLE_ID)?.remove()
-  document.head.appendChild(style)
-
   let frame = 0
   const sync = (): void => {
     frame = 0
     const current = label().trim()
-    for (const button of document.querySelectorAll('[role="dialog"] nav button')) {
+    const buttons = document.querySelectorAll('[role="dialog"] nav button')
+    if (buttons.length > 0) mountStyle(STYLE_ID, CSS)
+    for (const button of buttons) {
       if (current.length > 0 && button.textContent?.trim() === current) button.setAttribute(MARKER, '')
       else button.removeAttribute(MARKER)
     }
@@ -56,6 +54,6 @@ export function installSettingsNavIcon(label: () => string): () => void {
     observer.disconnect()
     if (frame !== 0) window.cancelAnimationFrame(frame)
     for (const element of document.querySelectorAll(`[${MARKER}]`)) element.removeAttribute(MARKER)
-    style.remove()
+    unmountStyle(STYLE_ID)
   }
 }

@@ -7,7 +7,7 @@ import { IconChevronLeftOutlineRegular, IconChevronRightOutlineRegular } from '@
 import { useLayoutEffect, useRef, type ReactNode } from 'react'
 import type { HistoryState } from './history.ts'
 import type { PrefsSnapshot } from './prefs-store.ts'
-import { ARROWS_ATTR, ARROWS_FRAME_ATTR } from './navigator.ts'
+import { ARROWS_ATTR, ARROWS_FRAME_ATTR, ensureArrowsStyle } from './navigator.ts'
 import type { HoverRevealStrings } from './locale.ts'
 
 export interface HistoryArrowsProps {
@@ -23,6 +23,11 @@ export function HistoryArrows({ useHistory, usePrefs, back, forward, t }: Histor
   const prefs = usePrefs((snapshot) => snapshot)
   const ref = useRef<HTMLDivElement | null>(null)
   const shown = document.documentElement.getAttribute('data-platform') === 'darwin' && prefs.historyArrows
+  // Re-mount the stylesheet on every render: if anything removed it, the
+  // next history change / prefs change heals the arrows.
+  useLayoutEffect(() => {
+    if (shown) ensureArrowsStyle()
+  })
   // Mark the AppFrame (parent of the shell overlay layer we render in) so the
   // seat/clearance rules apply exactly while the arrows are on screen.
   useLayoutEffect(() => {
