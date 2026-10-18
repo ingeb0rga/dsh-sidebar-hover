@@ -54,11 +54,17 @@ export const Config = z
   .description('Hover-to-reveal sidebar preferences (edited on the Settings → Sidebar hover page).')
 
 // Cordis guards direct service-property access on ctx: every service the node
-// half touches on the MAIN context must be declared here (`ctx.webServer`,
-// `ctx.webRuntime`). `settings` is reached through a dynamic `ctx.inject`
-// child context instead, exactly like dsh-better-sidebar does, so the
-// settings service can come up later without blocking activation.
-export const inject = ['webServer', 'webRuntime']
+// half touches on the MAIN context must be declared here (`ctx.webServer`).
+// Everything version-dependent is reached through dynamic `ctx.inject` child
+// contexts instead, so a service missing from one DSH release never blocks
+// activation:
+//  - `settings` (the prefs face), exactly like dsh-better-sidebar does;
+//  - request admission: `connection` (DSH 0.2.1+, `requestRejection(req)`:
+//    Host/Origin fence + browser authentication — what better-sidebar and the
+//    official routes use) or, on 0.2.0, `webRuntime.trustedHosts` with our
+//    own Host/Origin check. 0.2.1 dropped `webRuntime`; requiring it left the
+//    plugin "pending (waiting for service: webRuntime)" forever.
+export const inject = ['webServer']
 
 interface EntryLike {
   options?: { id?: unknown; name?: unknown }
@@ -264,24 +270,54 @@ export function apply(ctx: Context): void {
     route = { face: settings, ns }
   })
 
+  // Request admission, first available wins: connection (0.2.1+) → webRuntime
+  // trusted hosts (0.2.0). With neither, every request is refused.
+  let connectionAdmit: ((req: RegisterRequestLike) => number | undefined) | undefined
+  let trustedHosts: readonly string[] | undefined
+  ctx.inject(['connection'], (cctx: Context) => {
+    const connection = (cctx as unknown as {
+      connection?: { requestRejection?(req: RegisterRequestLike): number | undefined }
+    }).connection
+    if (typeof connection?.requestRejection !== 'function') return
+    cctx.effect(() => {
+      connectionAdmit = (req) => connection.requestRejection?.(req)
+      return () => {
+        connectionAdmit = undefined
+      }
+    }, 'dsh-sidebar-hover: connection admission')
+  })
+  ctx.inject(['webRuntime'], (wctx: Context) => {
+    const runtime = (wctx as unknown as { webRuntime?: { trustedHosts?: readonly string[] } }).webRuntime
+    wctx.effect(() => {
+      trustedHosts = runtime?.trustedHosts ?? []
+      return () => {
+        trustedHosts = undefined
+      }
+    }, 'dsh-sidebar-hover: webRuntime admission')
+  })
+  const rejection = (req: RegisterRequestLike): number | undefined => {
+    if (connectionAdmit !== undefined) return connectionAdmit(req)
+    if (trustedHosts !== undefined) return isTrustedApiRequest(req, trustedHosts) ? undefined : 403
+    return 503
+  }
+
   const host = ctx as unknown as {
     webServer?: { register(options: { kind: string; path: string; handler: unknown }): () => void }
-    webRuntime?: { trustedHosts?: readonly string[] }
   }
   const registerRoute = (): void => {
     if (host.webServer === undefined) {
       ctx.logger?.warn?.('dsh-sidebar-hover: webServer service absent; the settings page stays unavailable')
       return
     }
-    const trustedHosts = host.webRuntime?.trustedHosts ?? []
     ctx.effect(
       () =>
         host.webServer?.register({
           kind: 'prefix',
           path: API_PREFIX,
           handler: async (req: RegisterRequestLike, res: RegisterResponseLike) => {
-            if (!isTrustedApiRequest(req, trustedHosts)) {
-              sendJson(res, 403, { ok: false, error: { code: 'forbidden', message: 'untrusted request' } })
+            const status = rejection(req)
+            if (status !== undefined) {
+              sendJson(res, status, { ok: false, error: { code: 'forbidden', message: 'untrusted request' } })
               return
             }
             await handleApiRequest(() => route, req, res)

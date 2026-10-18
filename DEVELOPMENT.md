@@ -6,7 +6,7 @@ the integration analysis is [FINDINGS.md](./FINDINGS.md).
 
 ## Current state (2026-10-06)
 
-- **Version:** 0.1.23 on branch `release/0.1.23` (chain `release/0.1.13` → … → `0.1.23`; `main` is at 0.1.12). New versions go to their own branch. Not published to npm.
+- **Version:** 0.1.24 on branch `release/0.1.24` (chain `release/0.1.13` → … → `0.1.24`; `main` is at 0.1.12). New versions go to their own branch. Not published to npm.
 - **Repo:** `~/git/dsh-sidebar-hover`. Until 2026-10-06 the code lived in
   `~/Documents/deepseek-harness/default-workspace/dsh-sidebar-hover/`; the
   packed tarballs 0.1.0–0.1.11 are still there.
@@ -40,6 +40,7 @@ times are 2026-10-06 local.
 | 0.1.8 | 10:07 | Clicks on disclosure toggles (`aria-expanded`) no longer select-collapse. **Regression:** the controller itself set `aria-expanded` on the sidebar root, so every click matched and select-collapse never fired. |
 | 0.1.9 | 16:05 | Zone hysteresis (enter 8 px / exit 24 px) against seat-edge jitter; all `[data-shell-leading]` seats are zones (better-sidebar mounts its own); console trace for user-attributed flips. |
 | 0.1.10 | 21:19 | Fix the 0.1.8 regression: stop writing `aria-expanded` on the sidebar container. |
+| 0.1.24 | 2026-10-18 | DSH 0.2.1 support: the node half no longer requires `webRuntime` (removed in 0.2.1; the plugin stayed "pending (waiting for service: webRuntime)"). Prefs API admission now uses `connection.requestRejection` (0.2.1+), falling back to `webRuntime.trustedHosts` (0.2.0), both via optional `ctx.inject`; with neither, requests get 503. |
 | 0.1.23 | 2026-10-12 | Fix: stylesheets vanished mid-session (history arrows unpositioned over the traffic lights, New Session not shifted). The host loader claims every untagged `<style>` for the module being materialized and deletes it when that module reloads — another plugin's live update took ours with it. All sheets now go through `style.ts` (`data-plugin="dsh-sidebar-hover"`, re-mounted on use). |
 | 0.1.22 | 2026-10-07 | Publish prep: hover **on by default** (patch, node `Config`, client defaults); npm metadata (`repository`/`homepage`/`bugs`/`keywords`, author `ingeb0rga`), MIT `LICENSE`, `prepublishOnly` (typecheck + test + build); `@deepseek-ai/*` peers widened from exact `0.2.0-rc.2` to `>=0.2.0-rc.2 <0.3.0-0`. |
 | 0.1.21 | 2026-10-07 | Settings nav icon: Lucide `panel-left` instead of the shell's fallback gear (`nav-icon.ts`, marker + mask, dsh-better-sidebar's technique). Hover row copy names the sidebar toggle, not the rail. |

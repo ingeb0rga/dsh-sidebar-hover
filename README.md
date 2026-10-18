@@ -17,7 +17,7 @@ Settings live in their own page: **Settings → Sidebar hover**.
 - "Hover to reveal sidebar" — ON by default; hover delay 50–1000 ms.
 - "Session history arrows" — ON by default.
 
-Tested on the DeepSeek Harness **desktop app for macOS**, `0.2.0-rc.2`.
+Tested on the DeepSeek Harness **desktop app for macOS**, `0.2.0-rc.2` and `0.2.1-rc.2`.
 
 | | Desktop (macOS) | Web (`dsh web`, browser) |
 | --- | --- | --- |
@@ -27,7 +27,7 @@ Tested on the DeepSeek Harness **desktop app for macOS**, `0.2.0-rc.2`.
 | Settings → Sidebar hover | yes | same client code — **not tested live** |
 
 Windows / Linux desktop builds are untested.
-Current version **0.1.23**.
+Current version **0.1.24**.
 
 Docs:
 
